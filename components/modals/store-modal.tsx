@@ -1,6 +1,8 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -26,8 +28,19 @@ function StoreModal() {
     },
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async (value: z.infer<typeof formSchema>) => {
-    console.log({ value });
+    try {
+      setIsLoading(true);
+      const response = await axios.post('/api/stores', value);
+
+      console.log(response.data);
+    } catch (error) {
+      console.log('handleSubmit ', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -44,13 +57,20 @@ function StoreModal() {
               name="store"
               label="Enter name of store"
               placeholder="Store name"
+              disabled={isLoading}
             />
 
             <div className="pt-4 space-x-2 flex justify-end">
-              <Button onClick={storeModal.onClose} variant="outline">
+              <Button
+                disabled={isLoading}
+                onClick={storeModal.onClose}
+                variant="outline"
+              >
                 Cancel
               </Button>
-              <Button type="submit">Submit</Button>
+              <Button disabled={isLoading} type="submit">
+                Submit
+              </Button>
             </div>
           </form>
         </Form>
